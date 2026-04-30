@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<title>Tug‘ilgan kun muborak!</title>
+<style>
+body {
+  text-align: center;
+  font-family: sans-serif;
+  background: #ffe6f0;
+}
+h1 { color: #ff3399; }
+#cake {
+  margin: 50px auto;
+  width: 200px;
+  height: 150px;
+  background: pink;
+  border-radius: 10px;
+  position: relative;
+}
+.candle {
+  width: 5px;
+  height: 30px;
+  background: white;
+  position: absolute;
+}
+.flame {
+  width: 8px;
+  height: 8px;
+  background: orange;
+  border-radius: 50%;
+  position: absolute;
+  top: -8px;
+  left: -2px;
+}
+#message {
+  display: none;
+  font-size: 20px;
+  margin-top: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎂 62 yosh muborak! 🎉</h1>
+<div id="cake"></div>
+<button onclick="startMic()">🎤 Puflashni boshlash</button>
+
+<div id="message">
+🎂 62 yosh muborak, aziz opodadam! 🎉 <br><br>
+Siz bizning faxrimiz va tayanchimizsiz 🤍 <br>
+Sizga sog‘lik, uzoq umr va baxt tilayman <br>
+Har doim yuzingizdan kulgu arimasin 😊 <br>
+Biz sizni juda yaxshi ko‘ramiz ❤️ <br><br>
+🎈 Tug‘ilgan kuningiz bilan! 🎈
+</div>
+
+<script>
+const cake = document.getElementById("cake");
+
+// 62 ta sham yaratish
+for(let i=0;i<62;i++){
+  let c = document.createElement("div");
+  c.className = "candle";
+  c.style.left = (Math.random()*180)+"px";
+  c.style.top = (Math.random()*50)+"px";
+
+  let f = document.createElement("div");
+  f.className = "flame";
+
+  c.appendChild(f);
+  cake.appendChild(c);
+}
+
+let blown = false;
+
+function startMic(){
+  navigator.mediaDevices.getUserMedia({ audio: true })
+  .then(stream => {
+    const ctx = new AudioContext();
+    const mic = ctx.createMediaStreamSource(stream);
+    const analyser = ctx.createAnalyser();
+    mic.connect(analyser);
+
+    const data = new Uint8Array(analyser.frequencyBinCount);
+
+    function detect(){
+      analyser.getByteFrequencyData(data);
+      let volume = data.reduce((a,b)=>a+b)/data.length;
+
+      if(volume > 50 && !blown){
+        blowCandles();
+        blown = true;
+      }
+      requestAnimationFrame(detect);
+    }
+    detect();
+  });
+}
+
+function blowCandles(){
+  document.querySelectorAll(".flame").forEach(f=>f.style.display="none");
+  document.getElementById("message").style.display="block";
+}
+</script>
+
+</body>
+</html>
